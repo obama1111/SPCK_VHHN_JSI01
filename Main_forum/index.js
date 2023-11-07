@@ -2,13 +2,12 @@
 const search_create = document.getElementById("search_open");
 var check_search = false;
 var write_status = false;
+
 const animated_div = document.querySelector(".relative");
-const animated_status = document.querySelector("post_form");
 const opacity_blur = document.querySelector(".opacity_change");
-const open_write_status = document.getElementById("create_status")
 
 // const close_search = document.getElementById("off_search")
-opacity_blur.addEventListener("click", () => {
+opacity_blur.addEventListener("click", (turnoff_blur) => {
     if (check_search = true) {
         const search_bar = document.getElementById("searching_form")
         animated_div.style.animation = "slide4search_OFF 2s forwards"
@@ -27,7 +26,7 @@ search_create.addEventListener("click", () => {
         // search_bar.style.marginTop = "4%"
         opacity_blur.style.filter = "blur(1em)"
         animated_div.style.animation = "slide4search_ON 2s forwards "
-        check_search = true
+        check_search = true 
     } else {
         const search_bar = document.getElementById("searching_form")
         animated_div.style.animation = "slide4search_OFF 2s forwards"
@@ -39,23 +38,24 @@ search_create.addEventListener("click", () => {
     };
 });
 
-// tạo bài viết:
+// tạo bài viết: FIXME: BUG CHƯA HIỂN THỊ
+const open_write_status = document.getElementById("create_status")
+const animated_status = document.querySelector(".Pform");
 open_write_status.addEventListener("click", () => {
     if (write_status == false) {
-        const status = document.getElementById("post_form")
-        status.style.visibility = "visible"
-        // search_bar.style.marginTop = "4%"
-        opacity_blur.style.filter = "blur(1em)"
-        animated_status.style.animation = "Post_animated 2s forwards "
+        const status_open = document.getElementById("post_form");
+        status_open.style.visibility = "visible";
+        opacity_blur.style.filter = "blur(1em)";
         write_status = true
-    } else {
-        const status = document.getElementById("post_form")
-        animated_status.style.animation = "slide4search_OFF 2s forwards"
-        setTimeout(() => {
-            write_status = false;
-            status.style.visibility = "hidden"
-            opacity_blur.style.filter = "none"
-        }, 2000);
     };
-})
+});
 
+const status_close = document.getElementById("delete_post");
+status_close.addEventListener("click", () => {
+    if (write_status == true) {
+        const status_open = document.getElementById("post_form");
+        status_open.style.visibility = "hidden";
+        opacity_blur.style.filter = "none";
+        write_status = false
+    }
+})

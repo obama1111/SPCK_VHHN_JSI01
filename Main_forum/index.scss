@@ -58,6 +58,14 @@ body{
    100% {opacity: 1;  }
 }
 
+@keyframes Post_animated_off{
+    100% {width: 15em; height: 5em; opacity: 0;transform: rotate(45deg);}
+    75% {width: 30em; height: 10em; opacity: 0.1; transform: rotate(375deg);}
+    50% {width: 45em; height: 15em; opacity: 0.25; transform: rotate(45deg);}
+    25% {width: 56em; height: 20em; opacity: 0.75;  transform: rotate(375deg);}
+    0% {opacity: 1;  }
+ }
+ 
 #searching_form{
     visibility: hidden;
     display: flex;
@@ -81,7 +89,7 @@ body{
     width: 56em;
     position: fixed;
     left: 40%;
-    animation: Post_animated 3s forwards;
+    // animation: Post_animated 3s forwards;
     transition: 1s;
     
 }
