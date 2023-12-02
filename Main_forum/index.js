@@ -22,14 +22,14 @@ opacity_blur.addEventListener("click", (turnoff_blur) => {
 search_create.forEach((search) => {
     search.addEventListener("click", (e) => {
         e.stopPropagation();
-        console.log(check_search);
+        // console.log(check_search);
         if (check_search == false) {
             const search_bar = document.getElementById("searching_form")
             search_bar.style.visibility = "visible"
             // search_bar.style.marginTop = "4%"
             opacity_blur.style.filter = "blur(1em)"
             animated_div.style.animation = "slide4search_ON 2s forwards "
-            console.log(animated_div.style);
+            // console.log(animated_div.style);
             check_search = true
         } else {
             const search_bar = document.getElementById("searching_form")
@@ -42,29 +42,20 @@ search_create.forEach((search) => {
         };
     });
 })
-// TODO: Xử lý search bar -->> hiển thị bài viết, user khi tìm kiếm 
-function renderSearchedPosts(posts) {
-
-}
 
 // TÌM KIẾM
 input_searching = document.getElementById("default-search")
 input_searching.addEventListener("input", () => {
     const user = JSON.parse(localStorage.getItem("user"));
     const posts = JSON.parse(localStorage.getItem("posts")) ?? [];
-    const search_keywords = input_searching.value.trim()
-    const search_posts = posts.filter((post) =>{
-        return post.name.includes(search_keywords)||post.content.includes(search_keywords)
-
-    })
-
-    renderSearchedPosts(search_posts);
+    const search_keywords = input_searching.value.trim().toUpperCase();
+    const search_posts = posts.filter((post) => {
+        let Uppercase_Postcontent = post.content.toUpperCase()
+        return post.name.includes(search_keywords) || Uppercase_Postcontent.includes(search_keywords)
+    });
+    renderPosts(search_posts);
+    console.log(search_posts);
 });
-
-
-
-
-
 
 
 
@@ -76,25 +67,40 @@ up_status_btn.addEventListener("click", () => {
     const content = quill.root.innerHTML;
     const user = JSON.parse(localStorage.getItem("user"));
     const posts = JSON.parse(localStorage.getItem("posts")) ?? [];
-    posts.push({
-        content,
-        name: user.displayName,
-        avatar: user.photoURL,
-        uid: user.uid,
-        time: Date.now()
-    });
 
-    localStorage.setItem("posts", JSON.stringify(posts));
-    quill.setContents([{ insert: '\n' }]);
-    Swal.fire({
-        title: 'ĐĂNG BÀI THÀNH CÔNG!',
-        text: 'Do you want to continue',
-        icon: 'success',
-        confirmButtonText: 'continue'
-    }).then((result) => {
-        document.querySelector("#close_status").click();
-    });
-    renderPosts()
+    if (content == "<p><br></p>") {
+        Swal.fire({
+            title: "Chưa có nội dung",
+            // showCancelButton: true,
+            confirmButtonText: "Tiếp tục",
+        }).then((result) => {
+            quill.setContents([{ insert: '\n' }]);
+        });
+
+    } else {
+        posts.push({
+            content,
+            name: user.displayName,
+            avatar: user.photoURL,
+            uid: user.uid,
+            time: Date.now()
+        });
+
+        localStorage.setItem("posts", JSON.stringify(posts));
+        quill.setContents([{ insert: '\n' }]);
+        Swal.fire({
+            title: 'ĐĂNG BÀI THÀNH CÔNG!',
+            text: 'Do you want to continue',
+            icon: 'success',
+            confirmButtonText: 'continue'
+        }).then((result) => {
+            document.querySelector("#close_status").click();
+        });
+        renderPosts()
+
+    };
+
+
 })
 // tắt viết bài
 const close_status_btn = document.querySelector("#delete_post");
@@ -118,8 +124,12 @@ close_status_btn.addEventListener("click", () => {
 
 
 // ĐĂNG BÀI
-function renderPosts() {
-    const posts = JSON.parse(localStorage.getItem("posts")) ?? [];
+function renderPosts(filter_post) {
+    let posts = JSON.parse(localStorage.getItem("posts")) ?? [];
+    if (filter_post != "" && filter_post != undefined) {
+        posts = filter_post
+        console.log(posts);
+    }
     const user = JSON.parse(localStorage.getItem("user"));
 
     const postsContainer = document.querySelector("#page");
