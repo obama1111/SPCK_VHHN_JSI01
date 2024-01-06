@@ -1,3 +1,5 @@
+import { appendPost, onValue, ref, database } from "../Login/firebase_auth.js";
+
 //------------ANIMATION FOR SEARCH BAR-----------------
 const search_create = document.querySelectorAll(".search_open");
 var check_search = false;
@@ -44,9 +46,8 @@ search_create.forEach((search) => {
 })
 
 // TÌM KIẾM
-input_searching = document.getElementById("default-search")
+const input_searching = document.getElementById("default-search")
 input_searching.addEventListener("input", () => {
-    const user = JSON.parse(localStorage.getItem("user"));
     const posts = JSON.parse(localStorage.getItem("posts")) ?? [];
     const search_keywords = input_searching.value.trim().toUpperCase();
     const search_posts = posts.filter((post) => {
@@ -63,7 +64,7 @@ input_searching.addEventListener("input", () => {
 
 // LƯU BÀI - UPDATE STATUS
 const up_status_btn = document.querySelector(".Up_status")
-up_status_btn.addEventListener("click", () => {
+up_status_btn.addEventListener("click", async () => {
     const content = quill.root.innerHTML;
     const user = JSON.parse(localStorage.getItem("user"));
     const posts = JSON.parse(localStorage.getItem("posts")) ?? [];
@@ -78,14 +79,16 @@ up_status_btn.addEventListener("click", () => {
         });
 
     } else {
-        posts.push({
+        const postdata = {
             content,
             name: user.displayName,
             avatar: user.photoURL,
             uid: user.uid,
             time: Date.now()
-        });
-
+        }
+        // posts.push(postdata);
+        await appendPost(postdata);
+        posts.push(postdata);
         localStorage.setItem("posts", JSON.stringify(posts));
         quill.setContents([{ insert: '\n' }]);
         Swal.fire({
@@ -139,7 +142,7 @@ function renderPosts(filter_post) {
         postsContainer.insertAdjacentHTML(
             "beforeend",
             `
-                <article class="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+                <article id="${index}" class="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
                     <div class="flex justify-between items-center mb-5 text-gray-500">
                         <span class="bg-primary-100 text-primary-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-primary-200 dark:text-primary-800">
                             <svg class="mr-1 w-3 h-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path></svg>
@@ -166,7 +169,7 @@ function renderPosts(filter_post) {
                             ${post.name}
                             </span>
                         </div>
-                        <a href="#" class="inline-flex items-center font-medium text-primary-600 dark:text-white hover:underline">
+                        <a href="javascript:void(0);" data-modal-target="post-modal" data-modal-toggle="post-modal" class="inline-flex items-center font-medium text-primary-600 dark:text-white hover:underline " id="read_more_${index}">
                             Read more
                             <svg class="ml-2 w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                         </a>
@@ -174,9 +177,26 @@ function renderPosts(filter_post) {
                 </article>
             `
         );
+        // <div class="fb-comments" data-href="http://127.0.0.1:5500/Main_forum/index.html#${index}" data-width="640" data-numposts="2"></div>
+
+        const currentPost = document.getElementById(index);
+        const toggle = currentPost.querySelector(`#read_more_${index}`);
+        toggle.addEventListener("click", () => {
+            document.getElementById("post-modal").querySelector("img").src = post.avatar;
+
+
+            document.getElementById("post-modal").querySelector(".author").innerHTML = post.name;
+
+            document.getElementById("post-modal").querySelector("#post_time").innerHTML = new Date(post.time).toLocaleDateString();
+
+                
+            document.getElementById("post-modal").querySelector(".cmt").innerHTML = `
+            <div class="fb-comments" data-href="http://127.0.0.1:5500/Main_forum/index.html#${index}" data-width="" data-numposts="2"></div>`;
+            FB.XFBML.parse();
+        });
     });
 
-    dropdown_user_in4 = document.getElementById("user-dropdown");
+    const dropdown_user_in4 = document.getElementById("user-dropdown");
     dropdown_user_in4.insertAdjacentHTML("afterbegin",
 
         `
